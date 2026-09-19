@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>seansapp — uygulamanın tamamı</title>
+<style>
+  :root {
+    --brand: oklch(56% 0.16 252);
+    --brand-soft: oklch(96% 0.03 252);
+    --bg: oklch(98.4% 0.004 250);
+    --surface: #fff;
+    --border: oklch(91% 0.008 250);
+    --text: oklch(22% 0.02 250);
+    --muted: oklch(52% 0.02 250);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background:
+      radial-gradient(1200px 400px at 50% -140px, oklch(94% 0.05 252), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font: 400 14px/1.5 "Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── üst çubuk ─────────────────────────────────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 24px;
+    background: color-mix(in oklab, #fff 82%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .mark {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--brand); color: #fff;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 15px;
+  }
+  .wordmark { font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+  .sep { width: 1px; height: 20px; background: var(--border); }
+  .sub { color: var(--muted); font-size: 13px; }
+  .spacer { flex: 1 1 auto; }
+
+  .seg {
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--brand-soft); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .seg button {
+    appearance: none; border: 0; background: transparent; cursor: pointer;
+    font: inherit; font-size: 12.5px; font-weight: 600; color: var(--muted);
+    padding: 5px 11px; border-radius: 7px;
+  }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--brand); box-shadow: 0 1px 2px rgb(0 0 0 / .06); }
+
+  /* ── sayfa içi gezinme ─────────────────────────────────────────────── */
+  nav.jump {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 12px 24px 0;
+  }
+  nav.jump a {
+    text-decoration: none; color: var(--muted);
+    font-size: 12.5px; font-weight: 600;
+    padding: 5px 10px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  nav.jump a:hover { color: var(--brand); border-color: var(--brand); }
+
+  main { padding: 20px 24px 64px; }
+  .intro { max-width: 68ch; margin: 8px 0 28px; }
+  .intro h1 { font-size: 26px; line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .intro p { color: var(--muted); margin: 0; }
+
+  /* ── ekran kartları ────────────────────────────────────────────────── */
+  .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); }
+  .grid.solo { grid-template-columns: 1fr; }
+
+  figure { margin: 0; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgb(16 24 40 / .04), 0 8px 24px -12px rgb(16 24 40 / .12);
+  }
+  .card-head {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 11px 14px; border-bottom: 1px solid var(--border);
+    background: linear-gradient(var(--surface), oklch(99% 0.004 250));
+  }
+  .card-head .name { font-weight: 700; font-size: 13.5px; }
+  .card-head .path {
+    font: 500 11.5px/1 ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+    color: var(--brand); background: var(--brand-soft);
+    padding: 4px 7px; border-radius: 6px;
+  }
+  .card-head .open {
+    margin-left: auto; font-size: 12px; font-weight: 600;
+    color: var(--muted); text-decoration: none;
+  }
+  .card-head .open:hover { color: var(--brand); }
+
+  .viewport { position: relative; overflow: hidden; background: #fff; }
+  .viewport iframe {
+    position: absolute; top: 0; left: 0;
+    border: 0; transform-origin: 0 0;
+    background: #fff;
+  }
+  figcaption { color: var(--muted); font-size: 12.5px; padding: 9px 3px 0; }
+
+  footer {
+    color: var(--muted); font-size: 12.5px;
+    padding: 0 24px 40px; max-width: 68ch;
+  }
+  code {
+    font: 500 12px/1 ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+    background: var(--brand-soft); padding: 2px 5px; border-radius: 5px; color: var(--brand);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mark">S</div>
+  <div class="wordmark">seansapp</div>
+  <div class="sep"></div>
+  <div class="sub">Uygulamanın tamamı — tek sayfada, canlı</div>
+  <div class="spacer"></div>
+
+  <div class="seg" id="device" role="group" aria-label="Ekran genişliği">
+    <button data-w="1440" data-h="900" aria-pressed="true">Masaüstü</button>
+    <button data-w="1024" data-h="820" aria-pressed="false">Tablet</button>
+    <button data-w="414"  data-h="860" aria-pressed="false">Mobil</button>
+  </div>
+
+  <div class="seg" id="layout" role="group" aria-label="Yerleşim">
+    <button data-cols="grid" aria-pressed="true">Izgara</button>
+    <button data-cols="solo" aria-pressed="false">Tek sütun</button>
+  </div>
+</header>
+
+<nav class="jump">
+  <a href="#tanitim">Tanıtım</a>
+  <a href="#panel">Panel</a>
+  <a href="#takvim">Takvim</a>
+  <a href="#hastalar">Hastalar</a>
+  <a href="#ayarlar">Ayarlar</a>
+  <a href="#randevu">Randevu sayfası</a>
+  <a href="#giris">Giriş</a>
+  <a href="#kayit">Kayıt</a>
+  <a href="#hata">404</a>
+</nav>
+
+<main>
+  <div class="intro">
+    <h1>Diş kliniği randevu sisteminin bütün ekranları</h1>
+    <p>
+      Aşağıdaki her kutu, statik olarak dışa aktarılmış gerçek sayfanın kendisidir —
+      ekran görüntüsü değil. Kutuların içinde gezinebilir, tıklayabilirsiniz.
+      Üstteki düğmelerle genişliği değiştirip duyarlı davranışı görebilirsiniz.
+    </p>
+  </div>
+
+  <div class="grid" id="grid">
+
+    <figure id="tanitim">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Tanıtım sayfası</span>
+          <span class="path">/</span>
+          <a class="open" href="./index.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./index.html" loading="lazy" title="Tanıtım sayfası"></iframe></div>
+      </div>
+      <figcaption>Hero, özellikler, istatistikler, TL paketleri ve SSS. Satışa gönderilen sayfa.</figcaption>
+    </figure>
+
+    <figure id="panel">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Panel</span>
+          <span class="path">/dashboard</span>
+          <a class="open" href="./dashboard.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./dashboard.html" loading="lazy" title="Panel"></iframe></div>
+      </div>
+      <figcaption>Randevu kokpiti: istatistik satırı, gün programı, randevu listesi, hekim/tedavi panelleri, eğilim grafiği.</figcaption>
+    </figure>
+
+    <figure id="takvim">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Takvim</span>
+          <span class="path">/calendar</span>
+          <a class="open" href="./calendar.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./calendar.html" loading="lazy" title="Takvim"></iframe></div>
+      </div>
+      <figcaption>Hekim sütunları × saat satırları; bloklar tedaviye göre renkleniyor.</figcaption>
+    </figure>
+
+    <figure id="hastalar">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Hastalar</span>
+          <span class="path">/clients</span>
+          <a class="open" href="./clients.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./clients.html" loading="lazy" title="Hastalar"></iframe></div>
+      </div>
+      <figcaption>Hasta kartları: geliş geçmişi, telefon, hekim notları.</figcaption>
+    </figure>
+
+    <figure id="ayarlar">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Ayarlar</span>
+          <span class="path">/settings</span>
+          <a class="open" href="./settings.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./settings.html" loading="lazy" title="Ayarlar"></iframe></div>
+      </div>
+      <figcaption>Klinik bilgileri ve entegrasyonlar (Supabase, Google Calendar, Twilio).</figcaption>
+    </figure>
+
+    <figure id="randevu">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Randevu sayfası</span>
+          <span class="path">/randevu</span>
+          <a class="open" href="./randevu.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./randevu.html" loading="lazy" title="Randevu sayfası"></iframe></div>
+      </div>
+      <figcaption>Hastanın gördüğü halka açık sayfa: tedavi → hekim → saat seçimi.</figcaption>
+    </figure>
+
+    <figure id="giris">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Giriş</span>
+          <span class="path">/login</span>
+          <a class="open" href="./login.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./login.html" loading="lazy" title="Giriş"></iframe></div>
+      </div>
+      <figcaption>Demo geçişi açık — form gönderimi doğrudan panele düşürür.</figcaption>
+    </figure>
+
+    <figure id="kayit">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Kayıt</span>
+          <span class="path">/signup</span>
+          <a class="open" href="./signup.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./signup.html" loading="lazy" title="Kayıt"></iframe></div>
+      </div>
+      <figcaption>Marka paneli solda, form sağda; dar ekranda logo formun üstüne geçer.</figcaption>
+    </figure>
+
+    <figure id="hata">
+      <div class="card">
+        <div class="card-head">
+          <span class="name">Bulunamadı</span>
+          <span class="path">404</span>
+          <a class="open" href="./404.html" target="_blank" rel="noopener">tam ekran ↗</a>
+        </div>
+        <div class="viewport"><iframe src="./404.html" loading="lazy" title="404"></iframe></div>
+      </div>
+      <figcaption>Hatalı bağlantılarda gösterilen sayfa.</figcaption>
+    </figure>
+
+  </div>
+</main>
+
+<footer>
+  Bu sayfa <code>public/tumu.html</code> dosyasından gelir, yani her dışa aktarmada
+  <code>out/tumu.html</code> olarak yeniden üretilir. Kutuların boş görünmemesi için
+  klasörü bir sunucuyla açın: <code>npx serve out</code>.
+</footer>
+
+<script>
+  // Kutuların içindeki gerçek sayfa seçilen aygıt genişliğinde render edilir,
+  // sonra kartın genişliğine sığacak şekilde ölçeklenir.
+  var device = { w: 1440, h: 900 };
+
+  function fit() {
+    document.querySelectorAll('.viewport').forEach(function (box) {
+      var frame = box.querySelector('iframe');
+      var scale = box.clientWidth / device.w;
+      frame.style.width = device.w + 'px';
+      frame.style.height = device.h + 'px';
+      frame.style.transform = 'scale(' + scale + ')';
+      box.style.height = (device.h * scale) + 'px';
+    });
+  }
+
+  document.getElementById('device').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    this.querySelectorAll('button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b === btn));
+    });
+    device = { w: +btn.dataset.w, h: +btn.dataset.h };
+    fit();
+  });
+
+  document.getElementById('layout').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    this.querySelectorAll('button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b === btn));
+    });
+    document.getElementById('grid').classList.toggle('solo', btn.dataset.cols === 'solo');
+    requestAnimationFrame(fit);
+  });
+
+  addEventListener('resize', fit);
+  fit();
+</script>
+
+</body>
+</html>
